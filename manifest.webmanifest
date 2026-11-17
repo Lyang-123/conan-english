@@ -1,0 +1,18 @@
+{
+  "name": "名侦探英语",
+  "short_name": "名侦探英语",
+  "description": "柯南主题小学生英语学习 App —— 自然拼读、单词记忆、听读句子、开口表达",
+  "id": "./",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "theme_color": "#1E2C4A",
+  "background_color": "#FAF6EF",
+  "lang": "zh-CN",
+  "icons": [
+    { "src": "icon.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icon.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" },
+    { "src": "icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }
+  ]
+}
