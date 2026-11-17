@@ -1,0 +1,929 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#1E2C4A">
+<meta name="description" content="名侦探英语——柯南主题小学生英语学习 App">
+<title>名侦探英语</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon.png" type="image/png">
+<link rel="apple-touch-icon" href="icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Noto+Sans+SC:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --navy:#1E2C4A; --navy2:#2F4370;
+  --red:#E23A3A; --red2:#C62F2F;
+  --gold:#F5B93D; --gold2:#B98A1E;
+  --cream:#FAF6EF; --card:#FFFFFF; --warm:#FFFCF5;
+  --muted:#8B91A5; --sky:#4FA3E0; --green:#3AA876;
+  --border:#E3DCCE; --light:#B9C2D6;
+  --font:'Baloo 2','Noto Sans SC','PingFang SC','Microsoft YaHei',system-ui,-apple-system,sans-serif;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;padding:0;height:100%;overflow:hidden}
+body{
+  font-family:var(--font);
+  background:#ECE6DA;
+  color:var(--navy);
+  -webkit-font-smoothing:antialiased;
+}
+.app{
+  max-width:480px;margin:0 auto;height:100vh;height:100dvh;
+  background:var(--cream);display:flex;flex-direction:column;position:relative;overflow:hidden;
+}
+/* status bar */
+.statusbar{
+  display:flex;justify-content:space-between;align-items:center;
+  padding:10px 22px 4px;font-size:14px;font-weight:600;color:var(--navy);
+  flex:0 0 auto;
+}
+/* main scroll area */
+main{flex:1;overflow-y:auto;overflow-x:hidden;display:flex;flex-direction:column}
+.screen{display:none;flex-direction:column;gap:16px;padding:8px 20px 20px;animation:fade .25s ease}
+.screen.active{display:flex}
+@keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+/* shared */
+.h2{font-size:20px;font-weight:700}
+.muted{color:var(--muted)}
+.row{display:flex;align-items:center}
+.col{display:flex;flex-direction:column}
+.spread{justify-content:space-between}
+.gap8{gap:8px}.gap10{gap:10px}.gap12{gap:12px}.gap16{gap:16px}
+.card{background:var(--card);border-radius:18px}
+.shadow{box-shadow:0 6px 18px rgba(30,44,74,.08)}
+.btn{border:none;cursor:pointer;font-family:var(--font);font-weight:600;border-radius:14px;transition:transform .08s ease,opacity .15s}
+.btn:active{transform:scale(.96)}
+/* header */
+.header{display:flex;justify-content:space-between;align-items:center}
+.avatar{width:52px;height:52px;border-radius:50%;flex:0 0 auto;object-fit:cover;border:2px solid #fff;box-shadow:0 2px 8px rgba(30,44,74,.15)}
+.chip{background:#FAEEDA;color:var(--gold2);border-radius:12px;padding:6px 11px;font-size:13px;font-weight:600}
+/* hero */
+.hero{background:var(--navy);border-radius:22px;padding:20px;color:#fff;box-shadow:0 8px 20px rgba(30,44,74,.22)}
+.hero .tag{color:var(--gold);font-size:13px;font-weight:600;letter-spacing:.5px}
+.hero h1{margin:6px 0 2px;font-size:21px;font-weight:700}
+.hero .phon{color:var(--light);font-size:14px;font-weight:500}
+.hero .cta-row{margin-top:14px;display:flex;justify-content:space-between;align-items:center}
+.cta{background:var(--red);color:#fff;border-radius:14px;padding:11px 20px;font-size:15px}
+/* streak */
+.streak{display:flex;align-items:center;gap:8px;padding:13px 16px;border-radius:16px}
+.streak .num{font-size:17px;font-weight:800;color:var(--red)}
+.stars{margin-left:auto;display:flex;gap:3px}
+.stars svg{width:14px;height:14px}
+/* grid */
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.tile{background:var(--card);border-radius:18px;padding:14px;display:flex;flex-direction:column;gap:10px;box-shadow:0 4px 14px rgba(30,44,74,.06);cursor:pointer}
+.tile .box{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center}
+.tile .box svg{width:18px;height:18px;color:#fff}
+.tile b{font-size:15px;font-weight:700}
+.tile small{color:var(--muted);font-size:12px}
+/* tab bar（固定于底部，不随内容滚动） */
+.tabbar{flex:0 0 auto;padding:10px 18px 18px;background:linear-gradient(180deg,rgba(250,246,239,0) 0%,var(--cream) 18%)}
+.tabbar .pill{display:flex;background:var(--card);border:1px solid var(--border);border-radius:26px;padding:4px}
+.tab{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;padding:8px 0;border:none;background:transparent;border-radius:20px;cursor:pointer;font-family:var(--font);color:var(--muted);font-size:10px;font-weight:600}
+.tab svg{width:18px;height:18px;color:var(--muted)}
+.tab.active{background:var(--navy);color:#fff}
+.tab.active svg{color:#fff}
+/* speaker 声波动画 */
+.spk{position:relative;width:44px;height:44px;border-radius:50%;background:#fff;border:none;display:flex;align-items:center;justify-content:center;cursor:pointer;flex:0 0 auto}
+.spk svg{width:20px;height:20px;color:var(--navy);position:relative;z-index:1}
+.spk.playing::before,.spk.playing::after{content:'';position:absolute;inset:0;border-radius:50%;border:2px solid var(--gold);pointer-events:none;animation:ripple 1.1s ease-out infinite}
+.spk.playing::after{animation-delay:.55s}
+@keyframes ripple{0%{transform:scale(1);opacity:.9}100%{transform:scale(2.4);opacity:0}}
+.spk.dark{background:rgba(255,255,255,.16)}
+.spk.dark svg{color:#fff}
+/* 拼读：案件地图 */
+.caserow{display:flex;align-items:center;gap:10px;background:var(--card);border-radius:16px;padding:12px 14px;cursor:pointer}
+.caserow.cur{border:1.5px solid var(--red)}
+.caserow .node{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex:0 0 auto}
+.caserow .node svg{width:14px;height:14px;color:#fff}
+.caserow .name{flex:1;font-size:14px;font-weight:600}
+.caserow .st{font-size:12px;font-weight:600}
+.caserow .name.off{color:var(--muted)}
+/* 拼读：单字闯关滑动页 */
+.backbtn{display:inline-flex;align-items:center;gap:4px;background:var(--navy);color:#fff;border:none;border-radius:12px;padding:8px 14px;font-size:13px;font-weight:600;cursor:pointer;font-family:var(--font)}
+.swiper{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;scroll-behavior:smooth;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+.swiper::-webkit-scrollbar{display:none}
+.page{flex:0 0 100%;scroll-snap-align:center;padding-right:12px}
+.page:last-child{padding-right:0}
+.letterp{background:var(--navy);border-radius:24px;padding:28px 22px;color:#fff;display:flex;flex-direction:column;align-items:center;gap:14px;box-shadow:0 8px 20px rgba(30,44,74,.22);min-height:300px;justify-content:center}
+.letterp .big{font-size:72px;font-weight:800;line-height:1}
+.letterp .big .low{color:var(--gold);font-size:56px}
+.letterp .phon{color:var(--gold);font-size:20px;font-weight:600}
+.letterp .sub{color:var(--light);font-size:13px}
+.wcard,.scard{background:var(--card);border-radius:24px;padding:24px;display:flex;flex-direction:column;align-items:center;gap:13px;box-shadow:0 6px 18px rgba(30,44,74,.08);min-height:300px;justify-content:center}
+.wcard .illu{width:120px;height:120px;border-radius:50%;background:#FAEEDA;display:flex;align-items:center;justify-content:center;font-size:64px;line-height:1}
+.wcard .word{font-size:40px;font-weight:800;line-height:1}
+.wcard .phon{font-size:16px;color:var(--muted)}
+.wcard .zh{font-size:17px;font-weight:500}
+.scard .tag{color:var(--gold2);font-size:12px;font-weight:600}
+.scard .sline{font-size:26px;font-weight:700;line-height:1.45;text-align:center;color:var(--navy)}
+.scard .sline .hl{color:var(--red)}
+.scard .szh{color:var(--muted);font-size:15px;text-align:center}
+.wrow{display:flex;gap:12px;align-items:center}
+.follow{background:var(--red);color:#fff;border:none;border-radius:14px;padding:11px 22px;font-size:14px;font-weight:600;cursor:pointer;font-family:var(--font)}
+.follow:active{transform:scale(.96)}
+.follow-stars{display:flex;align-items:center;gap:4px;min-height:20px;justify-content:center}
+.follow-stars svg{width:16px;height:16px}
+.pagenav{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.pagenav button{background:var(--card);border:1px solid var(--border);color:var(--navy);border-radius:12px;padding:9px 16px;font-size:13px;font-weight:600;cursor:pointer;font-family:var(--font)}
+.pagenav button:disabled{opacity:.4}
+.pagenav .pageno{font-size:13px;font-weight:700;color:var(--muted)}
+.finishp{background:var(--navy);border-radius:24px;padding:28px 22px;color:#fff;display:flex;flex-direction:column;align-items:center;gap:14px;justify-content:center;min-height:300px;text-align:center}
+.finishp .big{font-size:24px;font-weight:800}
+/* progress */
+.track{height:8px;background:#EFEAE0;border-radius:6px;overflow:hidden}
+.track i{display:block;height:100%;background:var(--navy);border-radius:6px;transition:width .3s}
+/* flashcard */
+.fcard{background:var(--card);border-radius:22px;padding:24px;display:flex;flex-direction:column;align-items:center;gap:10px;box-shadow:0 6px 18px rgba(30,44,74,.08);touch-action:pan-y}
+.fcard .tag{color:var(--gold2);font-size:13px;font-weight:600}
+.fcard .illu{width:120px;height:120px;border-radius:50%;background:#FAEEDA;display:flex;align-items:center;justify-content:center;font-size:60px;line-height:1}
+.fcard .word{font-size:44px;font-weight:800;line-height:1}
+.fcard .phon{color:var(--muted);font-size:15px}
+.fcard .zh{font-size:17px;font-weight:500}
+.actions{display:flex;gap:10px}
+.actions button{flex:1;padding:13px 0;border-radius:14px;font-size:14px;font-weight:600;border:none;cursor:pointer;font-family:var(--font)}
+.b-forgot{background:#FCEBEB;color:var(--red)}
+.b-fuzzy{background:#FAEEDA;color:var(--gold2)}
+.b-known{background:#EAF6F0;color:var(--green)}
+/* speak */
+.sent{background:var(--navy);border-radius:22px;padding:22px;color:#fff}
+.sent .s{font-size:28px;font-weight:800;line-height:1.25}
+.sent .z{color:var(--light);font-size:14px;margin-top:6px}
+.sent .ctl{display:flex;gap:8px;align-items:center;margin-top:14px}
+.sent .rate{background:var(--navy2);border:none;color:#fff;border-radius:12px;padding:8px 14px;font-size:12px;font-weight:600;cursor:pointer;font-family:var(--font)}
+.sent .rate.on{background:var(--red)}
+.micwrap{display:flex;flex-direction:column;align-items:center;gap:12px;padding:10px 0}
+.micring{width:118px;height:118px;border-radius:50%;background:#FCEBEB;display:flex;align-items:center;justify-content:center}
+.micbtn{width:88px;height:88px;border-radius:50%;background:var(--red);border:none;display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 6px 16px rgba(226,58,58,.35)}
+.micbtn svg{width:36px;height:36px;color:#fff}
+.micbtn.rec{animation:pulse 1s infinite}
+@keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.07)}}
+.scorecard{display:flex;align-items:center;justify-content:space-between;background:var(--card);border-radius:18px;padding:16px}
+.scorecard .v{font-size:20px;font-weight:800;color:var(--red)}
+/* profile */
+.pcard{background:var(--navy);border-radius:22px;padding:20px;display:flex;align-items:center;gap:12px;color:#fff;box-shadow:0 8px 20px rgba(30,44,74,.22)}
+.pcard .name{font-size:18px;font-weight:700}
+.pcard .lv{color:var(--gold);font-size:13px;font-weight:600}
+.stats{display:flex;gap:10px}
+.stat{flex:1;background:var(--card);border-radius:16px;padding:12px;display:flex;flex-direction:column;align-items:center;gap:2px}
+.stat b{font-size:20px;font-weight:800}
+.stat small{color:var(--muted);font-size:11px}
+.badgegrid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.badge{background:var(--card);border-radius:16px;padding:14px 8px;display:flex;flex-direction:column;align-items:center;gap:6px}
+.badge svg{width:28px;height:28px}
+.badge span{font-size:11px;font-weight:600;text-align:center}
+.badge.off{opacity:.55}
+.badge.off span{color:var(--muted)}
+/* toast */
+#toast{position:fixed;left:50%;bottom:110px;transform:translateX(-50%) translateY(20px);background:var(--navy);color:#fff;padding:10px 18px;border-radius:20px;font-size:13px;opacity:0;pointer-events:none;transition:.25s;z-index:50;max-width:80%;text-align:center}
+#toast.show{opacity:1;transform:translateX(-50%)}
+@media(min-width:481px){
+  .app{box-shadow:0 0 40px rgba(30,44,74,.15)}
+}
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute">
+  <defs>
+    <symbol id="i-home" viewBox="0 0 24 24"><path d="M3 11.5L12 4l9 7.5" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/><path d="M5.5 10v9.5h13V10" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-mag" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7" fill="none" stroke="currentColor" stroke-width="2.2"/><path d="M20.5 20.5L16.2 16.2" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></symbol>
+    <symbol id="i-card" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="3" fill="none" stroke="currentColor" stroke-width="2.2"/><path d="M3 10h18" stroke="currentColor" stroke-width="2.2"/></symbol>
+    <symbol id="i-mic" viewBox="0 0 24 24"><rect x="9" y="3" width="6" height="11" rx="3" fill="none" stroke="currentColor" stroke-width="2.2"/><path d="M5 11a7 7 0 0014 0" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/><path d="M12 18v3" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></symbol>
+    <symbol id="i-person" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4" fill="none" stroke="currentColor" stroke-width="2.2"/><path d="M4 21c0-4.4 3.6-6.5 8-6.5s8 2.1 8 6.5" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></symbol>
+    <symbol id="i-speaker" viewBox="0 0 24 24"><path d="M4 9.5v5h4l5 4.5v-14L8 9.5H4z" fill="currentColor"/><path d="M16 9a4 4 0 010 6" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></symbol>
+    <symbol id="i-star" viewBox="0 0 24 24"><path d="M12 2.5l2.9 6 6.6.9-4.8 4.6 1.2 6.5L12 17.3l-5.9 3.2 1.2-6.5-4.8-4.6 6.6-.9z" fill="#F5B93D"/></symbol>
+    <symbol id="i-flame" viewBox="0 0 24 24"><path d="M12 2c1 3.6-4.6 5.4-4.6 9.8a4.6 4.6 0 009.2 0c0-2.2-1-3.6-1.8-4.6.9.6 1.6 1.8 1.6 3.6 0 2.8-2 4.7-4.4 4.7s-4.4-1.9-4.4-4.7C8.6 7.8 11 6 12 2z" fill="#F59E0B"/></symbol>
+    <symbol id="i-lock" viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="9" rx="2.5" fill="#C9C3B8"/><path d="M8 11V8a4 4 0 018 0v3" fill="none" stroke="#C9C3B8" stroke-width="2.2"/></symbol>
+    <symbol id="i-check" viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-bowtie" viewBox="0 0 24 24"><path d="M12 12L4 5v14z" fill="#E23A3A"/><path d="M12 12l8-7v14z" fill="#E23A3A"/><circle cx="12" cy="12" r="2.2" fill="#C62F2F"/></symbol>
+    <symbol id="i-badge" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="#F5B93D" stroke="#1E2C4A" stroke-width="1.5"/><path d="M12 6l1.8 3.7 4.1.6-3 2.9.7 4.1L12 15.2 8.4 17.3l.7-4.1-3-2.9 4.1-.6z" fill="#1E2C4A"/></symbol>
+  </defs>
+</svg>
+
+<div class="app">
+  <div class="statusbar"><span id="clock">9:41</span>
+    <svg width="24" height="12" viewBox="0 0 24 12" fill="none"><rect x="0.5" y="1.5" width="19" height="9" rx="2.5" stroke="#1E2C4A"/><rect x="2.5" y="3.5" width="13" height="5" rx="1" fill="#1E2C4A"/><path d="M21.5 4.5v3" stroke="#1E2C4A" stroke-width="1.5" stroke-linecap="round"/></svg>
+  </div>
+
+  <main>
+    <!-- 首页 -->
+    <section id="home" class="screen active">
+      <div class="header">
+        <div>
+          <div class="h2">你好，小侦探！</div>
+          <div class="muted" style="font-size:12px">真相只有一个，今天也要加油破案哦</div>
+        </div>
+        <img class="avatar" src="avatar.jpg" alt="小侦探头像">
+      </div>
+      <div class="hero">
+        <div class="tag">今日案件 · CASE <span id="heroCaseNo">01</span></div>
+        <h1 id="heroCaseTitle">字母 A 的发音</h1>
+        <div class="phon" id="heroCasePhon">/æ/ · apple · ant · cat</div>
+        <div class="cta-row">
+          <button class="btn cta" onclick="goTab('phonics')">开始破案</button>
+          <svg width="26" height="26"><use href="#i-mag" style="color:#F5B93D"/></svg>
+        </div>
+      </div>
+      <div class="streak card shadow">
+        <svg width="20" height="20"><use href="#i-flame"/></svg>
+        <span style="font-size:13px;font-weight:600">连续破案 <span class="num" id="streakNum">0</span> 天</span>
+        <span class="stars" id="streakStars"></span>
+      </div>
+      <div class="h2" style="font-size:16px">侦探训练营</div>
+      <div class="grid">
+        <div class="tile" onclick="goTab('phonics')">
+          <div class="box" style="background:var(--navy)"><svg><use href="#i-mag"/></svg></div>
+          <div><b>自然拼读</b><br><small>见词能读</small></div>
+        </div>
+        <div class="tile" onclick="goTab('words')">
+          <div class="box" style="background:var(--red)"><svg><use href="#i-card"/></svg></div>
+          <div><b>单词记忆</b><br><small>卡片闯关</small></div>
+        </div>
+        <div class="tile" onclick="goTab('speak')">
+          <div class="box" style="background:var(--gold)"><svg><use href="#i-speaker"/></svg></div>
+          <div><b>听读句子</b><br><small>多听多读</small></div>
+        </div>
+        <div class="tile" onclick="goTab('speak')">
+          <div class="box" style="background:var(--sky)"><svg><use href="#i-mic"/></svg></div>
+          <div><b>开口表达</b><br><small>大胆开口</small></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 拼读 -->
+    <section id="phonics" class="screen">
+      <!-- 地图视图 -->
+      <div id="phonicsMap">
+        <div class="header">
+          <div class="h2">自然拼读</div>
+          <div class="chip" id="caseChip">案件 1/26</div>
+        </div>
+        <div class="muted" style="font-size:12px">点击字母进入闯关，每个字母含 7 个单词的拼读练习</div>
+        <div id="caseMap" style="display:flex;flex-direction:column;gap:10px"></div>
+      </div>
+      <!-- 闯关视图 -->
+      <div id="phonicsLesson" style="display:none">
+        <div class="header">
+          <button class="backbtn" onclick="showMap()">‹ 返回地图</button>
+          <div class="h2" id="lessonLetter">Aa</div>
+          <div class="chip" id="pageChip">1/1</div>
+        </div>
+        <div class="swiper" id="phonicsSwiper"></div>
+        <div class="pagenav">
+          <button id="pgPrev" onclick="swipePage(-1)">‹ 上一页</button>
+          <span class="pageno" id="pageNo">1 / 22</span>
+          <button id="pgNext" onclick="swipePage(1)">下一页 ›</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- 单词 -->
+    <section id="words" class="screen">
+      <div class="header">
+        <div class="h2">单词档案</div>
+        <div class="muted" style="font-size:13px;font-weight:600">已收集 <span id="wordDone">0</span>/<span id="wordTotal">0</span></div>
+      </div>
+      <div class="track"><i id="wordBar" style="width:20%"></i></div>
+      <div class="fcard" id="fcard">
+        <div class="tag" id="cardTag">侦探线索卡</div>
+        <div class="illu" id="cardIllu">🐱</div>
+        <div class="word" id="cardWord">CAT</div>
+        <div class="phon" id="cardPhon">/kæt/</div>
+        <div class="zh" id="cardZh">猫</div>
+        <button class="spk" style="background:var(--cream)" id="cardSpeak"><svg><use href="#i-speaker"/></svg></button>
+      </div>
+      <div class="actions">
+        <button class="b-forgot" onclick="wordAnswer('forgot')">不认识</button>
+        <button class="b-fuzzy" onclick="wordAnswer('fuzzy')">有点模糊</button>
+        <button class="b-known" onclick="wordAnswer('known')">认识它</button>
+      </div>
+      <div class="muted" style="text-align:center;font-size:12px">左右滑动卡片，收集更多线索</div>
+    </section>
+
+    <!-- 口语 -->
+    <section id="speak" class="screen">
+      <div class="header">
+        <div class="h2">开口表达</div>
+        <div class="muted" style="font-size:13px;font-weight:600">今日 <span id="sentNo">1</span>/<span id="sentTotal">0</span> 句</div>
+      </div>
+      <div class="sent">
+        <div class="tag" style="color:var(--gold);font-size:12px;font-weight:600">今日跟读 · SENTENCE <span id="sentTag">01</span></div>
+        <div class="s" id="sentEn">I like apples.</div>
+        <div class="z" id="sentZh">我喜欢苹果。</div>
+        <div class="ctl">
+          <button class="rate on" id="rateNormal" onclick="setRate(1,this)">常速</button>
+          <button class="rate" id="rateSlow" onclick="setRate(.6,this)">慢速</button>
+          <button class="spk dark" style="width:40px;height:40px" id="sentSpeak"><svg><use href="#i-speaker"/></svg></button>
+        </div>
+      </div>
+      <div class="micwrap">
+        <div class="micring"><button class="micbtn" id="micBtn" onclick="startListen()"><svg><use href="#i-mic"/></svg></button></div>
+        <div style="font-size:13px;font-weight:600">按住说话，大声读出来</div>
+      </div>
+      <div class="scorecard">
+        <div>
+          <div class="muted" style="font-size:12px">本次朗读评分</div>
+          <div class="v" id="scoreText">-- 分</div>
+        </div>
+        <span class="stars" id="scoreStars"></span>
+      </div>
+      <div class="muted" style="text-align:center;font-size:12px">大声朗读，侦探需要清晰的证词！</div>
+    </section>
+
+    <!-- 我的 -->
+    <section id="me" class="screen">
+      <div class="pcard">
+        <img class="avatar" style="width:56px;height:56px" src="avatar.jpg" alt="小侦探头像">
+        <div style="flex:1">
+          <div class="name">小侦探六六</div>
+          <div class="lv" id="lvText">Lv.1 · 见习侦探</div>
+        </div>
+        <svg width="32" height="32"><use href="#i-badge"/></svg>
+      </div>
+      <div class="stats">
+        <div class="stat"><b id="stCases">0</b><small>破获案件</small></div>
+        <div class="stat"><b id="stWords">0</b><small>收集单词</small></div>
+        <div class="stat"><b id="stSent">0</b><small>朗读句子</small></div>
+      </div>
+      <div class="h2" style="font-size:16px">侦探徽章</div>
+      <div class="badgegrid" id="badgeGrid"></div>
+    </section>
+  </main>
+
+  <nav class="tabbar">
+    <div class="pill">
+      <button class="tab active" data-screen="home"><svg><use href="#i-home"/></svg>首页</button>
+      <button class="tab" data-screen="phonics"><svg><use href="#i-mag"/></svg>拼读</button>
+      <button class="tab" data-screen="words"><svg><use href="#i-card"/></svg>单词</button>
+      <button class="tab" data-screen="speak"><svg><use href="#i-mic"/></svg>口语</button>
+      <button class="tab" data-screen="me"><svg><use href="#i-person"/></svg>我的</button>
+    </div>
+  </nav>
+</div>
+<div id="toast"></div>
+
+<script>
+const $=s=>document.querySelector(s), $$=s=>document.querySelectorAll(s);
+
+/* ---------- 拼读数据：每字 7 个单词，每词 2 个句子 ---------- */
+/* [单词, 音标, 中文, emoji, 句1, 句1中文, 句2, 句2中文] */
+const LETTERS=[
+{l:'A',sound:'/æ/',w:[
+['apple','/ˈæpl/','苹果','🍎','I eat an apple.','我吃一个苹果。','The apple is red.','这个苹果是红色的。'],
+['ant','/ænt/','蚂蚁','🐜','The ant is small.','蚂蚁很小。','I see an ant.','我看见一只蚂蚁。'],
+['cat','/kæt/','猫','🐱','The cat is cute.','这只猫很可爱。','I love my cat.','我爱我的猫。'],
+['hat','/hæt/','帽子','🎩','I wear a hat.','我戴着一顶帽子。','The hat is blue.','这顶帽子是蓝色的。'],
+['bag','/bæg/','书包','🎒','My bag is big.','我的书包很大。','I open the bag.','我打开书包。'],
+['map','/mæp/','地图','🗺️','Look at the map.','看这张地图。','The map is old.','这张地图很旧。'],
+['fan','/fæn/','扇子','🪭','I have a fan.','我有一把扇子。','The fan is cool.','扇子很凉快。']
+]},
+{l:'B',sound:'/b/',w:[
+['ball','/bɔːl/','球','⚽','I kick the ball.','我踢球。','The ball is round.','球是圆的。'],
+['bat','/bæt/','蝙蝠','🦇','The bat flies at night.','蝙蝠在夜里飞。','A bat is black.','蝙蝠是黑色的。'],
+['bed','/bed/','床','🛏️','I go to bed.','我去睡觉。','My bed is soft.','我的床很软。'],
+['box','/bɒks/','盒子','📦','The box is big.','盒子很大。','I open the box.','我打开盒子。'],
+['bus','/bʌs/','公交车','🚌','I take the bus.','我坐公交车。','The bus is yellow.','公交车是黄色的。'],
+['bird','/bɜːd/','鸟','🐦','The bird can fly.','鸟会飞。','I see a bird.','我看见一只鸟。'],
+['book','/bʊk/','书','📖','I read a book.','我读一本书。','The book is fun.','这本书很有趣。']
+]},
+{l:'C',sound:'/k/',w:[
+['cat','/kæt/','猫','🐱','The cat is cute.','这只猫很可爱。','I feed the cat.','我喂猫。'],
+['car','/kɑː/','汽车','🚗','The car is fast.','汽车很快。','I see a red car.','我看见一辆红汽车。'],
+['cup','/kʌp/','杯子','🥤','I drink a cup of water.','我喝一杯水。','The cup is clean.','杯子很干净。'],
+['cow','/kaʊ/','奶牛','🐄','The cow is big.','奶牛很大。','A cow says moo.','奶牛哞哞叫。'],
+['cake','/keɪk/','蛋糕','🎂','I like cake.','我喜欢蛋糕。','The cake is sweet.','蛋糕很甜。'],
+['cap','/kæp/','鸭舌帽','🧢','I wear a cap.','我戴鸭舌帽。','The cap is red.','这顶帽子是红色的。'],
+['corn','/kɔːn/','玉米','🌽','I eat corn.','我吃玉米。','The corn is yellow.','玉米是黄色的。']
+]},
+{l:'D',sound:'/d/',w:[
+['dog','/dɒɡ/','狗','🐶','The dog is happy.','狗很开心。','I walk my dog.','我遛狗。'],
+['duck','/dʌk/','鸭子','🦆','The duck swims.','鸭子在游泳。','A duck says quack.','鸭子嘎嘎叫。'],
+['door','/dɔː/','门','🚪','I open the door.','我开门。','The door is closed.','门关着。'],
+['doll','/dɒl/','玩偶','🪆','I have a doll.','我有一个玩偶。','The doll is pretty.','玩偶很漂亮。'],
+['desk','/desk/','书桌','🖥️','I sit at my desk.','我坐在书桌前。','The desk is tidy.','书桌很整洁。'],
+['dig','/dɪɡ/','挖','⛏️','I dig a hole.','我挖一个洞。','They dig in the sand.','他们在沙子里挖。'],
+['drum','/drʌm/','鼓','🥁','I play the drum.','我打鼓。','The drum is loud.','鼓声很响。']
+]},
+{l:'E',sound:'/e/',w:[
+['egg','/eɡ/','鸡蛋','🥚','I eat an egg.','我吃一个鸡蛋。','The egg is white.','鸡蛋是白色的。'],
+['elephant','/ˈelɪfənt/','大象','🐘','The elephant is big.','大象很大。','I see an elephant.','我看见一头大象。'],
+['bed','/bed/','床','🛏️','I go to bed.','我去睡觉。','My bed is soft.','我的床很软。'],
+['pen','/pen/','钢笔','🖊️','I write with a pen.','我用钢笔写字。','The pen is blue.','钢笔是蓝色的。'],
+['hen','/hen/','母鸡','🐔','The hen lays an egg.','母鸡下蛋。','A hen is in the yard.','母鸡在院子里。'],
+['net','/net/','网','🥅','I catch with a net.','我用网捕捞。','The net is big.','网很大。'],
+['jet','/dʒet/','喷气飞机','✈️','The jet flies high.','喷气飞机飞得很高。','I see a jet.','我看见一架喷气飞机。']
+]},
+{l:'F',sound:'/f/',w:[
+['fish','/fɪʃ/','鱼','🐟','The fish swims.','鱼在游。','I catch a fish.','我抓到一条鱼。'],
+['fox','/fɒks/','狐狸','🦊','The fox is clever.','狐狸很聪明。','I see a fox.','我看见一只狐狸。'],
+['frog','/frɒɡ/','青蛙','🐸','The frog jumps.','青蛙在跳。','A frog is green.','青蛙是绿色的。'],
+['fan','/fæn/','扇子','🪭','I have a fan.','我有一把扇子。','The fan is cool.','扇子很凉快。'],
+['five','/faɪv/','五','5️⃣','I have five fingers.','我有五根手指。','I count to five.','我数到五。'],
+['foot','/fʊt/','脚','🦶','I stand on my foot.','我用一只脚站着。','My foot is small.','我的脚很小。'],
+['farm','/fɑːm/','农场','🌾','I live on a farm.','我住在农场。','The farm has cows.','农场里有奶牛。']
+]},
+{l:'G',sound:'/g/',w:[
+['goat','/ɡəʊt/','山羊','🐐','The goat eats grass.','山羊吃草。','I see a goat.','我看见一只山羊。'],
+['gift','/ɡɪft/','礼物','🎁','I get a gift.','我收到一份礼物。','The gift is nice.','礼物很漂亮。'],
+['girl','/ɡɜːl/','女孩','👧','The girl is happy.','女孩很开心。','I see a girl.','我看见一个女孩。'],
+['gate','/ɡeɪt/','大门','⛩️','I open the gate.','我打开大门。','The gate is green.','大门是绿色的。'],
+['gum','/ɡʌm/','口香糖','🍬','I chew gum.','我嚼口香糖。','The gum is sweet.','口香糖很甜。'],
+['grass','/ɡrɑːs/','草','🌱','The grass is green.','草是绿色的。','I sit on the grass.','我坐在草地上。'],
+['green','/ɡriːn/','绿色','💚','Green is my favorite color.','绿色是我最喜欢的颜色。','The leaf is green.','叶子是绿色的。']
+]},
+{l:'H',sound:'/h/',w:[
+['hat','/hæt/','帽子','🎩','I wear a hat.','我戴着一顶帽子。','The hat is blue.','这顶帽子是蓝色的。'],
+['hen','/hen/','母鸡','🐔','The hen lays an egg.','母鸡下蛋。','A hen is in the yard.','母鸡在院子里。'],
+['hand','/hænd/','手','✋','I wave my hand.','我挥手。','My hand is clean.','我的手很干净。'],
+['house','/haʊs/','房子','🏠','My house is big.','我的房子很大。','I live in a house.','我住在房子里。'],
+['horse','/hɔːs/','马','🐴','The horse runs fast.','马跑得很快。','I ride a horse.','我骑马。'],
+['hill','/hɪl/','小山','⛰️','I climb the hill.','我爬山。','The hill is high.','小山很高。'],
+['hot','/hɒt/','热的','🔥','The sun is hot.','太阳很热。','I feel hot.','我觉得热。']
+]},
+{l:'I',sound:'/ɪ/',w:[
+['igloo','/ˈɪɡluː/','冰屋','🧊','The igloo is cold.','冰屋很冷。','I see an igloo.','我看见一座冰屋。'],
+['ink','/ɪŋk/','墨水','🖋️','The ink is black.','墨水是黑色的。','I write in ink.','我用墨水写字。'],
+['insect','/ˈɪnsekt/','昆虫','🐛','The insect is tiny.','昆虫很小。','I see an insect.','我看见一只昆虫。'],
+['pig','/pɪɡ/','猪','🐷','The pig is pink.','猪是粉色的。','I feed the pig.','我喂猪。'],
+['fish','/fɪʃ/','鱼','🐟','The fish swims.','鱼在游。','I catch a fish.','我抓到一条鱼。'],
+['six','/sɪks/','六','6️⃣','I am six years old.','我六岁。','I count to six.','我数到六。'],
+['milk','/mɪlk/','牛奶','🥛','I drink milk.','我喝牛奶。','The milk is cold.','牛奶是冷的。']
+]},
+{l:'J',sound:'/dʒ/',w:[
+['jam','/dʒæm/','果酱','🍓','I eat jam.','我吃果酱。','The jam is sweet.','果酱很甜。'],
+['jet','/dʒet/','喷气飞机','✈️','The jet flies high.','喷气飞机飞得很高。','I see a jet.','我看见一架喷气飞机。'],
+['juice','/dʒuːs/','果汁','🧃','I drink juice.','我喝果汁。','The juice is orange.','果汁是橙色的。'],
+['jump','/dʒʌmp/','跳','🦘','I can jump high.','我能跳得很高。','The frog jumps.','青蛙跳了起来。'],
+['jelly','/ˈdʒeli/','果冻','🍮','I eat jelly.','我吃果冻。','The jelly is soft.','果冻很软。'],
+['jar','/dʒɑː/','罐子','🫙','The jar is empty.','罐子是空的。','I open the jar.','我打开罐子。'],
+['jeans','/dʒiːnz/','牛仔裤','👖','I wear jeans.','我穿牛仔裤。','My jeans are blue.','我的牛仔裤是蓝色的。']
+]},
+{l:'K',sound:'/k/',w:[
+['kite','/kaɪt/','风筝','🪁','I fly a kite.','我放风筝。','The kite is high.','风筝飞得很高。'],
+['key','/kiː/','钥匙','🔑','I have a key.','我有一把钥匙。','The key is small.','钥匙很小。'],
+['king','/kɪŋ/','国王','🤴','The king is kind.','国王很和善。','I see a king.','我看见一位国王。'],
+['kick','/kɪk/','踢','⚽','I kick the ball.','我踢球。','He kicks the door.','他踢门。'],
+['kitten','/ˈkɪtn/','小猫','🐱','The kitten is cute.','小猫很可爱。','I play with a kitten.','我和小猫玩。'],
+['kitchen','/ˈkɪtʃɪn/','厨房','🍳','I cook in the kitchen.','我在厨房做饭。','The kitchen is clean.','厨房很干净。'],
+['koala','/kəʊˈɑːlə/','考拉','🐨','The koala is sleepy.','考拉很困。','I see a koala.','我看见一只考拉。']
+]},
+{l:'L',sound:'/l/',w:[
+['lion','/ˈlaɪən/','狮子','🦁','The lion is strong.','狮子很强壮。','I see a lion.','我看见一头狮子。'],
+['lamp','/læmp/','台灯','💡','I turn on the lamp.','我打开台灯。','The lamp is bright.','台灯很亮。'],
+['leg','/leɡ/','腿','🦵','My leg is long.','我的腿很长。','I lift my leg.','我抬起腿。'],
+['leaf','/liːf/','叶子','🍃','The leaf is green.','叶子是绿色的。','I pick a leaf.','我摘一片叶子。'],
+['lemon','/ˈlemən/','柠檬','🍋','The lemon is sour.','柠檬很酸。','I drink lemon water.','我喝柠檬水。'],
+['log','/lɒɡ/','木头','🪵','The log is heavy.','木头很重。','I sit on a log.','我坐在木头上。'],
+['love','/lʌv/','爱','❤️','I love my mom.','我爱我的妈妈。','I love my family.','我爱我的家人。']
+]},
+{l:'M',sound:'/m/',w:[
+['moon','/muːn/','月亮','🌙','The moon is bright.','月亮很亮。','I see the moon.','我看见月亮。'],
+['mouse','/maʊs/','老鼠','🐭','The mouse is small.','老鼠很小。','I see a mouse.','我看见一只老鼠。'],
+['milk','/mɪlk/','牛奶','🥛','I drink milk.','我喝牛奶。','The milk is cold.','牛奶是冷的。'],
+['map','/mæp/','地图','🗺️','Look at the map.','看这张地图。','The map is old.','这张地图很旧。'],
+['mop','/mɒp/','拖把','🧹','I use a mop.','我用拖把。','The mop is wet.','拖把是湿的。'],
+['man','/mæn/','男人','👨','The man is tall.','那个男人很高。','I see a man.','我看见一个男人。'],
+['mummy','/ˈmʌmi/','妈妈','👩','I love my mummy.','我爱我的妈妈。','My mummy is kind.','我的妈妈很和善。']
+]},
+{l:'N',sound:'/n/',w:[
+['nest','/nest/','鸟巢','🪺','The nest is in the tree.','鸟巢在树上。','I see a nest.','我看见一个鸟巢。'],
+['nose','/nəʊz/','鼻子','👃','My nose is small.','我的鼻子很小。','I touch my nose.','我摸摸鼻子。'],
+['net','/net/','网','🥅','I catch with a net.','我用网捕捞。','The net is big.','网很大。'],
+['nut','/nʌt/','坚果','🥜','I eat a nut.','我吃一颗坚果。','The nut is hard.','坚果很硬。'],
+['nail','/neɪl/','指甲','💅','My nail is short.','我的指甲很短。','I cut my nail.','我剪指甲。'],
+['night','/naɪt/','夜晚','🌃','The night is dark.','夜晚很黑。','I sleep at night.','我晚上睡觉。'],
+['nine','/naɪn/','九','9️⃣','I am nine years old.','我九岁。','I count to nine.','我数到九。']
+]},
+{l:'O',sound:'/ɒ/',w:[
+['octopus','/ˈɒktəpəs/','章鱼','🐙','The octopus has eight legs.','章鱼有八条腿。','I see an octopus.','我看见一只章鱼。'],
+['orange','/ˈɒrɪndʒ/','橙子','🍊','I eat an orange.','我吃一个橙子。','The orange is sweet.','橙子很甜。'],
+['ox','/ɒks/','公牛','🐂','The ox is strong.','公牛很强壮。','I see an ox.','我看见一头公牛。'],
+['on','/ɒn/','在……上','🔛','The cat is on the box.','猫在盒子上。','I sit on the chair.','我坐在椅子上。'],
+['pot','/pɒt/','锅','🍲','The pot is hot.','锅很热。','I cook in a pot.','我用锅做饭。'],
+['box','/bɒks/','盒子','📦','The box is big.','盒子很大。','I open the box.','我打开盒子。'],
+['sock','/sɒk/','袜子','🧦','I wear a sock.','我穿一只袜子。','My sock is white.','我的袜子是白色的。']
+]},
+{l:'P',sound:'/p/',w:[
+['pig','/pɪɡ/','猪','🐷','The pig is pink.','猪是粉色的。','I feed the pig.','我喂猪。'],
+['pen','/pen/','钢笔','🖊️','I write with a pen.','我用钢笔写字。','The pen is blue.','钢笔是蓝色的。'],
+['pan','/pæn/','平底锅','🍳','I cook in a pan.','我用平底锅做饭。','The pan is hot.','平底锅很热。'],
+['pink','/pɪŋk/','粉色','💗','Pink is a pretty color.','粉色很漂亮。','My bag is pink.','我的包是粉色的。'],
+['park','/pɑːk/','公园','🏞️','I play in the park.','我在公园里玩。','The park is big.','公园很大。'],
+['pencil','/ˈpensl/','铅笔','✏️','I draw with a pencil.','我用铅笔画画。','My pencil is yellow.','我的铅笔是黄色的。'],
+['puppy','/ˈpʌpi/','小狗','🐶','The puppy is cute.','小狗很可爱。','I play with a puppy.','我和小狗玩。']
+]},
+{l:'Q',sound:'/kw/',w:[
+['queen','/kwiːn/','女王','👸','The queen is kind.','女王很和善。','I see a queen.','我看见一位女王。'],
+['quilt','/kwɪlt/','被子','🛌','I sleep under a quilt.','我盖着被子睡觉。','The quilt is warm.','被子很暖和。'],
+['quack','/kwæk/','嘎嘎叫','🦆','The duck says quack.','鸭子嘎嘎叫。','I hear quack quack.','我听见嘎嘎叫。'],
+['quick','/kwɪk/','快的','⚡','The rabbit is quick.','兔子很快。','I am quick.','我很快。'],
+['question','/ˈkwestʃən/','问题','❓','I ask a question.','我提一个问题。','That is a good question.','那是个好问题。'],
+['quiz','/kwɪz/','小测验','📝','I take a quiz.','我参加小测验。','The quiz is fun.','小测验很有趣。'],
+['quiet','/ˈkwaɪət/','安静的','🤫','Please be quiet.','请安静。','The room is quiet.','房间很安静。']
+]},
+{l:'R',sound:'/r/',w:[
+['rabbit','/ˈræbɪt/','兔子','🐰','The rabbit jumps.','兔子在跳。','I see a rabbit.','我看见一只兔子。'],
+['red','/red/','红色','🔴','Red is a bright color.','红色很鲜艳。','The apple is red.','苹果是红色的。'],
+['run','/rʌn/','跑','🏃','I can run fast.','我能跑得很快。','Let us run together.','我们一起跑吧。'],
+['rain','/reɪn/','雨','🌧️','The rain is heavy.','雨下得很大。','I see the rain.','我看见下雨。'],
+['ring','/rɪŋ/','戒指','💍','The ring is shiny.','戒指很闪亮。','I wear a ring.','我戴着一枚戒指。'],
+['rose','/rəʊz/','玫瑰','🌹','The rose is red.','玫瑰是红色的。','I smell a rose.','我闻玫瑰。'],
+['rice','/raɪs/','米饭','🍚','I eat rice.','我吃米饭。','The rice is white.','米饭是白色的。']
+]},
+{l:'S',sound:'/s/',w:[
+['sun','/sʌn/','太阳','☀️','The sun is bright.','太阳很亮。','I love the sun.','我喜欢太阳。'],
+['snake','/sneɪk/','蛇','🐍','The snake is long.','蛇很长。','I see a snake.','我看见一条蛇。'],
+['sea','/siː/','大海','🌊','The sea is blue.','大海是蓝色的。','I swim in the sea.','我在海里游泳。'],
+['sock','/sɒk/','袜子','🧦','I wear a sock.','我穿一只袜子。','My sock is white.','我的袜子是白色的。'],
+['star','/stɑː/','星星','⭐','The star is bright.','星星很亮。','I see a star.','我看见一颗星星。'],
+['sit','/sɪt/','坐','🪑','I sit on the chair.','我坐在椅子上。','Please sit down.','请坐下。'],
+['six','/sɪks/','六','6️⃣','I am six years old.','我六岁。','I count to six.','我数到六。']
+]},
+{l:'T',sound:'/t/',w:[
+['tiger','/ˈtaɪɡə/','老虎','🐯','The tiger is strong.','老虎很强壮。','I see a tiger.','我看见一只老虎。'],
+['ten','/ten/','十','🔟','I am ten years old.','我十岁。','I count to ten.','我数到十。'],
+['top','/tɒp/','陀螺','🌀','The top spins.','陀螺在转。','I spin the top.','我转陀螺。'],
+['toy','/tɔɪ/','玩具','🧸','I have a toy.','我有一个玩具。','The toy is fun.','玩具很好玩。'],
+['tea','/tiː/','茶','🍵','I drink tea.','我喝茶。','The tea is hot.','茶很热。'],
+['tree','/triː/','树','🌳','The tree is tall.','树很高。','I climb the tree.','我爬树。'],
+['two','/tuː/','二','2️⃣','I have two eyes.','我有两只眼睛。','I count to two.','我数到二。']
+]},
+{l:'U',sound:'/ʌ/',w:[
+['umbrella','/ʌmˈbrelə/','雨伞','☂️','I open my umbrella.','我打开雨伞。','The umbrella is red.','雨伞是红色的。'],
+['up','/ʌp/','向上','⬆️','I look up.','我向上看。','The balloon goes up.','气球飞上去了。'],
+['under','/ˈʌndə/','在……下面','⬇️','The cat is under the table.','猫在桌子下面。','I hide under the bed.','我躲在床下。'],
+['sun','/sʌn/','太阳','☀️','The sun is bright.','太阳很亮。','I love the sun.','我喜欢太阳。'],
+['cup','/kʌp/','杯子','🥤','I drink a cup of water.','我喝一杯水。','The cup is clean.','杯子很干净。'],
+['run','/rʌn/','跑','🏃','I can run fast.','我能跑得很快。','Let us run together.','我们一起跑吧。'],
+['duck','/dʌk/','鸭子','🦆','The duck swims.','鸭子在游泳。','A duck says quack.','鸭子嘎嘎叫。']
+]},
+{l:'V',sound:'/v/',w:[
+['van','/væn/','面包车','🚐','The van is big.','面包车很大。','I see a van.','我看见一辆面包车。'],
+['vest','/vest/','背心','🦺','I wear a vest.','我穿一件背心。','The vest is warm.','背心很暖和。'],
+['violin','/ˌvaɪəˈlɪn/','小提琴','🎻','I play the violin.','我拉小提琴。','The violin sounds nice.','小提琴声音很好听。'],
+['vase','/vɑːz/','花瓶','🏺','The vase is pretty.','花瓶很漂亮。','I put a flower in the vase.','我把花放进花瓶。'],
+['vet','/vet/','兽医','👨‍⚕️','The vet helps animals.','兽医帮助动物。','I see a vet.','我看见一位兽医。'],
+['video','/ˈvɪdiəʊ/','视频','🎬','I watch a video.','我看视频。','The video is fun.','视频很有趣。'],
+['volcano','/vɒlˈkeɪnəʊ/','火山','🌋','The volcano is big.','火山很大。','I see a volcano.','我看见一座火山。']
+]},
+{l:'W',sound:'/w/',w:[
+['water','/ˈwɔːtə/','水','💧','I drink water.','我喝水。','The water is clear.','水很清澈。'],
+['web','/web/','蜘蛛网','🕸️','The spider makes a web.','蜘蛛织网。','I see a web.','我看见一张蜘蛛网。'],
+['wolf','/wʊlf/','狼','🐺','The wolf is grey.','狼是灰色的。','I see a wolf.','我看见一只狼。'],
+['window','/ˈwɪndəʊ/','窗户','🪟','I open the window.','我打开窗户。','The window is clean.','窗户很干净。'],
+['whale','/weɪl/','鲸鱼','🐋','The whale is huge.','鲸鱼很巨大。','I see a whale.','我看见一头鲸鱼。'],
+['walk','/wɔːk/','走路','🚶','I walk to school.','我走路去学校。','We walk together.','我们一起走路。'],
+['well','/wel/','井','🪣','The well is deep.','井很深。','I look in the well.','我往井里看。']
+]},
+{l:'X',sound:'/ks/',w:[
+['box','/bɒks/','盒子','📦','The box is big.','盒子很大。','I open the box.','我打开盒子。'],
+['fox','/fɒks/','狐狸','🦊','The fox is clever.','狐狸很聪明。','I see a fox.','我看见一只狐狸。'],
+['six','/sɪks/','六','6️⃣','I am six years old.','我六岁。','I count to six.','我数到六。'],
+['wax','/wæks/','蜡','🕯️','The wax is soft.','蜡很软。','I make a wax candle.','我做一支蜡烛。'],
+['mix','/mɪks/','混合','🥣','I mix the colors.','我混合颜色。','Mix the eggs well.','把鸡蛋搅拌均匀。'],
+['ox','/ɒks/','公牛','🐂','The ox is strong.','公牛很强壮。','I see an ox.','我看见一头公牛。'],
+['exit','/ˈeksɪt/','出口','🚪','I go to the exit.','我走向出口。','The exit is there.','出口在那边。']
+]},
+{l:'Y',sound:'/j/',w:[
+['yellow','/ˈjeləʊ/','黄色','🟡','Yellow is a bright color.','黄色很鲜艳。','The banana is yellow.','香蕉是黄色的。'],
+['yoyo','/ˈjəʊjəʊ/','溜溜球','🪀','I play with a yoyo.','我玩溜溜球。','The yoyo goes up and down.','溜溜球上下弹。'],
+['yes','/jes/','是的','👍','Yes, I can do it.','是的，我能做到。','I say yes.','我说是的。'],
+['yak','/jæk/','牦牛','🐃','The yak is big.','牦牛很大。','I see a yak.','我看见一头牦牛。'],
+['yard','/jɑːd/','院子','🏡','I play in the yard.','我在院子里玩。','The yard is green.','院子绿油油的。'],
+['yarn','/jɑːn/','毛线','🧶','The yarn is soft.','毛线很软。','I knit with yarn.','我用毛线编织。'],
+['you','/juː/','你','👉','I love you.','我爱你。','You are my friend.','你是我的朋友。']
+]},
+{l:'Z',sound:'/z/',w:[
+['zebra','/ˈzebrə/','斑马','🦓','The zebra has stripes.','斑马有条纹。','I see a zebra.','我看见一匹斑马。'],
+['zero','/ˈzɪərəʊ/','零','0️⃣','Zero is a number.','零是一个数字。','I count from zero.','我从零开始数。'],
+['zoo','/zuː/','动物园','🏞️','I go to the zoo.','我去动物园。','The zoo has many animals.','动物园里有很多动物。'],
+['zip','/zɪp/','拉链','🤐','I zip my bag.','我拉上包的拉链。','The zip is stuck.','拉链卡住了。'],
+['zigzag','/ˈzɪɡzæɡ/','之字形','⚡','I draw a zigzag.','我画一条之字线。','The road is a zigzag.','这条路是之字形的。'],
+['zucchini','/zuːˈkiːni/','西葫芦','🥒','I eat zucchini.','我吃西葫芦。','The zucchini is green.','西葫芦是绿色的。'],
+['zone','/zəʊn/','区域','📍','This is my zone.','这是我的区域。','I stay in the zone.','我待在区域内。']
+]}
+];
+
+/* ---------- 单词卡数据 ---------- */
+const WORDS=[
+ {en:'cat',p:'/kæt/',zh:'猫',e:'🐱'},{en:'dog',p:'/dɒɡ/',zh:'狗',e:'🐶'},
+ {en:'apple',p:'/ˈæpl/',zh:'苹果',e:'🍎'},{en:'sun',p:'/sʌn/',zh:'太阳',e:'☀️'},
+ {en:'moon',p:'/muːn/',zh:'月亮',e:'🌙'},{en:'fish',p:'/fɪʃ/',zh:'鱼',e:'🐟'},
+ {en:'bird',p:'/bɜːd/',zh:'鸟',e:'🐦'},{en:'car',p:'/kɑː/',zh:'汽车',e:'🚗'},
+ {en:'book',p:'/bʊk/',zh:'书',e:'📖'},{en:'pen',p:'/pen/',zh:'钢笔',e:'🖊️'},
+ {en:'red',p:'/red/',zh:'红色',e:'🔴'},{en:'happy',p:'/ˈhæpi/',zh:'开心',e:'😊'},
+];
+const SENTS=[
+ {en:'I like apples.',zh:'我喜欢苹果。'},{en:'I am a detective.',zh:'我是小侦探。'},
+ {en:'This is my dog.',zh:'这是我的狗。'},{en:'The sun is red.',zh:'太阳是红色的。'},
+ {en:'I can run fast.',zh:'我跑得很快。'},{en:'The truth is only one.',zh:'真相只有一个。'},
+];
+const BADGES=[
+ {n:'拼读新手',need:{cases:3}},{n:'单词达人',need:{words:10}},{n:'朗读之星',need:{sent:5}},
+ {n:'口语先锋',need:{speak:3}},{n:'连续七天',need:{streak:7}},{n:'真相见证者',need:{cases:26}},
+];
+
+/* ---------- store ---------- */
+const KEY='conan_english_v2';
+const defaults={done:0,words:{},wordIdx:0,sentIdx:0,speakDone:0,streak:0,last:''};
+let d;
+function load(){
+  try{d=Object.assign({},defaults,JSON.parse(localStorage.getItem(KEY)||'{}'));}catch(e){d=Object.assign({},defaults);}
+  const today=new Date().toDateString();
+  if(d.last!==today){
+    const y=new Date(Date.now()-86400000).toDateString();
+    d.streak=(d.last===y)?d.streak+1:1;
+    d.last=today;
+  }
+}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(d));}catch(e){}}
+function wordsKnown(){return Object.values(d.words).filter(s=>s==='known').length;}
+function sentRead(){return d.speakDone;}
+
+/* ---------- toast ---------- */
+let toastTimer;
+function toast(m){const t=$('#toast');t.textContent=m;t.classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(()=>t.classList.remove('show'),1800);}
+
+/* ---------- speech（标准发音） ---------- */
+let VOICE=null;
+function pickVoice(){
+  if(!('speechSynthesis' in window))return;
+  const vs=speechSynthesis.getVoices();if(!vs.length)return;
+  const prefer=['Google US English','Samantha','Ava','Allison','Microsoft Aria Online (Natural) - English (United States)','Microsoft Jenny Online (Natural) - English (United States)','Karen','Moira','Tessa','Daniel'];
+  let best=null;
+  for(const n of prefer){best=vs.find(v=>v.name===n);if(best)break;}
+  if(!best)best=vs.find(v=>v.lang==='en-US'&&v.localService)||vs.find(v=>v.lang==='en-US')||vs.find(v=>/^en/i.test(v.lang||''))||null;
+  VOICE=best;
+}
+if('speechSynthesis' in window){pickVoice();try{speechSynthesis.onvoiceschanged=pickVoice;}catch(e){}}
+function clearPlaying(){$$('.playing').forEach(b=>b.classList.remove('playing'));}
+function speak(text,rate,btn){
+  if(!('speechSynthesis' in window))return;
+  try{
+    speechSynthesis.cancel();
+    clearPlaying();
+    setTimeout(()=>{
+      const u=new SpeechSynthesisUtterance(text);
+      u.lang='en-US';if(VOICE)u.voice=VOICE;u.rate=rate||0.9;u.pitch=1;
+      u.onend=()=>clearPlaying();
+      u.onerror=()=>clearPlaying();
+      if(btn)btn.classList.add('playing');
+      speechSynthesis.speak(u);
+    },60);
+  }catch(e){}
+}
+let curRate=1;
+function setRate(r,btn){curRate=r;$$('.rate').forEach(b=>b.classList.remove('on'));btn.classList.add('on');toast(r===1?'常速':'慢速');}
+
+/* ---------- 跟读打分 ---------- */
+function follow(target, starsEl){
+  const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+  if(!SR){toast('当前浏览器不支持语音识别，请用 Chrome 打开');return;}
+  const rec=new SR();rec.lang='en-US';rec.interimResults=false;rec.maxAlternatives=1;
+  toast('🎙️ 请跟读…');
+  rec.onresult=e=>{
+    const said=(e.results[0][0].transcript||'').toLowerCase().replace(/[^a-z\s]/g,'').trim();
+    const tw=target.toLowerCase().replace(/[^a-z\s]/g,'').trim().split(/\s+/);
+    const sw=said.split(/\s+/).filter(Boolean);
+    let hit=0;tw.forEach(w=>{if(sw.includes(w))hit++;});
+    const score=tw.length?Math.round(hit/tw.length*100):0;
+    const n=score>=90?3:score>=60?2:score>=1?1:0;
+    if(starsEl){starsEl.innerHTML='<svg viewBox="0 0 24 24"><use href="#i-star"/></svg>'.repeat(n)+(n?'<span style="font-size:12px;color:var(--muted)">'+score+' 分</span>':'');}
+    toast(n>=2?'🎉 读得真棒！':(n===1?'不错，再练练！':'再试一次'));
+  };
+  rec.onerror=()=>toast('没听清，再试一次');
+  rec.onend=()=>{};
+  rec.start();
+}
+
+/* ---------- tabs ---------- */
+function goTab(id){
+  $$('.screen').forEach(s=>s.classList.remove('active'));
+  $('#'+id).classList.add('active');
+  $$('.tab').forEach(t=>t.classList.toggle('active',t.dataset.screen===id));
+  if(id!=='phonics'){try{speechSynthesis.cancel();}catch(e){} clearPlaying();}
+  render();
+}
+$$('.tab').forEach(t=>t.onclick=()=>goTab(t.dataset.screen));
+
+/* ---------- 高亮句子中的目标词 ---------- */
+function hl(sentence,word){
+  const esc=word.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');
+  return sentence.replace(new RegExp('\\b('+esc+'[a-z]*)\\b','i'),'<span class="hl">$1</span>');
+}
+
+/* ---------- 拼读：单字闯关 ---------- */
+let curLesson=null, curPage=0, pageCount=1;
+function lessonPages(L){
+  const pages=[{type:'letter',letter:L.l,sound:L.sound}];
+  L.w.forEach(wd=>{
+    pages.push({type:'word',w:wd});
+    pages.push({type:'sent',w:wd,s:wd.s[0]});
+    pages.push({type:'sent',w:wd,s:wd.s[1]});
+  });
+  pages.push({type:'finish',letter:L.l});
+  return pages;
+}
+function openLesson(i){
+  curLesson=i;curPage=0;
+  $('#phonicsMap').style.display='none';
+  $('#phonicsLesson').style.display='flex';
+  buildLesson();
+}
+function showMap(){
+  try{speechSynthesis.cancel();}catch(e){} clearPlaying();
+  $('#phonicsLesson').style.display='none';
+  $('#phonicsMap').style.display='block';
+  renderPhonics();
+}
+function buildLesson(){
+  const L=LETTERS[curLesson];
+  $('#lessonLetter').textContent=L.l+L.l.toLowerCase();
+  const pages=lessonPages(L);
+  pageCount=pages.length;
+  $('#phonicsSwiper').innerHTML=pages.map((p,idx)=>{
+    if(p.type==='letter'){
+      return '<div class="page"><div class="letterp">'+
+        '<div class="big">'+p.letter+'<span class="low">'+p.letter.toLowerCase()+'</span></div>'+
+        '<div class="phon">'+p.sound+'</div>'+
+        '<button class="spk dark" data-speak="'+p.letter+'" data-rate="0.6"><svg><use href="#i-speaker"/></svg></button>'+
+        '<div class="sub">字母 '+p.letter+' 的大小写与发音</div></div></div>';
+    }else if(p.type==='word'){
+      const w=p.w;
+      return '<div class="page"><div class="wcard">'+
+        '<div class="illu">'+w.e+'</div>'+
+        '<div class="word">'+w.w+'</div>'+
+        '<div class="phon">'+w.p+'</div>'+
+        '<div class="zh">'+w.z+'</div>'+
+        '<div class="wrow">'+
+          '<button class="spk" data-speak="'+w.w+'" data-rate="0.8"><svg><use href="#i-speaker"/></svg></button>'+
+          '<button class="follow" data-follow="'+w.w+'">跟读</button>'+
+        '</div>'+
+        '<div class="follow-stars"></div>'+
+      '</div></div>';
+    }else if(p.type==='sent'){
+      const w=p.w, s=p.s;
+      return '<div class="page"><div class="scard">'+
+        '<div class="tag">包含 "'+w.w+'" 的句子</div>'+
+        '<div class="sline">'+hl(s.en,w.w)+'</div>'+
+        '<div class="szh">'+s.zh+'</div>'+
+        '<div class="wrow">'+
+          '<button class="spk" data-speak="'+s.en.replace(/"/g,'&quot;')+'" data-rate="0.8"><svg><use href="#i-speaker"/></svg></button>'+
+          '<button class="follow" data-follow="'+s.en.replace(/"/g,'&quot;')+'">跟读</button>'+
+        '</div>'+
+        '<div class="follow-stars"></div>'+
+      '</div></div>';
+    }else{
+      return '<div class="page"><div class="finishp">'+
+        '<svg width="60" height="60"><use href="#i-badge"/></svg>'+
+        '<div class="big">字母 '+p.letter+' 破案成功！</div>'+
+        '<div class="sub" style="color:var(--light)">你已经掌握了 7 个单词的拼读</div>'+
+        '<button class="btn cta" onclick="finishCase()">返回地图 · 下一关</button>'+
+      '</div></div>';
+    }
+  }).join('');
+  $('#phonicsSwiper').scrollLeft=0;
+  curPage=0;updatePageNav();
+}
+function updatePageNav(){
+  $('#pageChip').textContent=(curPage+1)+'/'+pageCount;
+  $('#pageNo').textContent=(curPage+1)+' / '+pageCount;
+  $('#pgPrev').disabled=curPage<=0;
+  $('#pgNext').disabled=curPage>=pageCount-1;
+}
+function swipePage(dir){
+  const sw=$('#phonicsSwiper');
+  const target=Math.max(0,Math.min(pageCount-1,curPage+dir));
+  sw.scrollTo({left:target*sw.clientWidth,behavior:'smooth'});
+}
+function finishCase(){
+  if(curLesson===d.done && d.done<25){d.done++;save();}
+  toast('🎉 破案成功！解锁下一个字母');
+  showMap();render();
+}
+$('#phonicsSwiper').addEventListener('scroll',()=>{
+  const sw=$('#phonicsSwiper');
+  const page=Math.round(sw.scrollLeft/sw.clientWidth);
+  if(page!==curPage){curPage=page;updatePageNav();}
+});
+$('#phonicsSwiper').addEventListener('click',e=>{
+  const sp=e.target.closest('[data-speak]');
+  if(sp){speak(sp.dataset.speak,parseFloat(sp.dataset.rate||'0.8'),sp);return;}
+  const fo=e.target.closest('[data-follow]');
+  if(fo){follow(fo.dataset.follow,fo.closest('.page').querySelector('.follow-stars'));return;}
+});
+
+/* ---------- render ---------- */
+function pad2(n){return String(n).padStart(2,'0');}
+function render(){
+  const now=new Date();$('#clock').textContent=pad2(now.getHours())+':'+pad2(now.getMinutes());
+  const cur=Math.min(d.done,LETTERS.length-1);
+  $('#heroCaseNo').textContent=pad2(d.done+1);
+  $('#heroCaseTitle').textContent='字母 '+LETTERS[cur].l+' 的发音';
+  $('#heroCasePhon').textContent=LETTERS[cur].sound+' · '+LETTERS[cur].w.slice(0,3).map(x=>x[0]).join(' · ');
+  $('#streakNum').textContent=d.streak;
+  $('#streakStars').innerHTML='<svg viewBox="0 0 24 24"><use href="#i-star"/></svg>'.repeat(Math.min(d.streak,5));
+  renderPhonics();renderWords();renderSpeak();renderMe();
+}
+function renderPhonics(){
+  $('#caseChip').textContent='案件 '+(d.done+1)+'/26';
+  $('#caseMap').innerHTML=LETTERS.map((x,i)=>{
+    let node,st,cls='caserow',off='';
+    if(i<d.done){node='<span class="node" style="background:var(--navy)"><svg><use href="#i-check"/></svg></span>';st='<span class="st" style="color:var(--green)">已破案</span>';}
+    else if(i===d.done){node='<span class="node" style="background:#fff;border:2px solid var(--red);color:var(--red)">'+(i+1)+'</span>';st='<span class="st" style="color:var(--red)">进行中</span>';cls+=' cur';}
+    else{node='<span class="node" style="background:#E8E2D6"><svg><use href="#i-lock"/></svg></span>';st='<span class="st" style="color:var(--muted)">未解锁</span>';off=' off';}
+    return '<div class="'+cls+'" onclick="pickCase('+i+')">'+node+'<span class="name'+off+'">案件 '+pad2(i+1)+' · 字母 '+x.l+'（'+x.w.length+' 词）</span>'+st+'</div>';
+  }).join('');
+}
+function pickCase(i){if(i<=d.done){openLesson(i);}else{toast('先完成前面的案件才能解锁');}}
+
+function renderWords(){
+  $('#wordTotal').textContent=WORDS.length;
+  $('#wordDone').textContent=wordsKnown();
+  $('#wordBar').style.width=(wordsKnown()/WORDS.length*100)+'%';
+  const W=WORDS[d.wordIdx];
+  $('#cardTag').textContent='侦探线索卡 · CARD '+pad2(d.wordIdx+1);
+  $('#cardIllu').textContent=W.e;$('#cardWord').textContent=W.en.toUpperCase();
+  $('#cardPhon').textContent=W.p;$('#cardZh').textContent=W.zh;
+}
+$('#cardSpeak').addEventListener('click',function(){speak(WORDS[d.wordIdx].en,0.85,this);});
+function wordAnswer(k){
+  d.words[d.wordIdx]=k;
+  if(k==='known'){toast('✅ 太棒了，认识一个新单词！');}
+  else if(k==='fuzzy'){toast('再记一次，很快就能记住啦');}
+  else{toast('没关系，多听几遍');}
+  d.wordIdx=(d.wordIdx+1)%WORDS.length;save();renderWords();renderMe();
+}
+
+function renderSpeak(){
+  $('#sentTotal').textContent=SENTS.length;
+  $('#sentNo').textContent=(d.sentIdx+1);
+  const S=SENTS[d.sentIdx];
+  $('#sentTag').textContent=pad2(d.sentIdx+1);
+  $('#sentEn').textContent=S.en;$('#sentZh').textContent=S.zh;
+}
+$('#sentSpeak').addEventListener('click',function(){speak(SENTS[d.sentIdx].en,curRate,this);});
+function setScore(score){
+  $('#scoreText').textContent=score+' 分';
+  const n=score>=90?3:score>=75?2:score>=60?1:0;
+  $('#scoreStars').innerHTML='<svg viewBox="0 0 24 24"><use href="#i-star"/></svg>'.repeat(n);
+  if(score>=75){d.speakDone++;d.sentIdx=(d.sentIdx+1)%SENTS.length;}
+  save();renderMe();
+}
+function startListen(){
+  const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+  if(!SR){toast('当前浏览器不支持语音识别，请用 Chrome 打开');return;}
+  const rec=new SR();rec.lang='en-US';rec.interimResults=false;rec.maxAlternatives=1;
+  $('#micBtn').classList.add('rec');
+  toast('🎙️ 请跟读句子…');
+  rec.onresult=e=>{
+    $('#micBtn').classList.remove('rec');
+    const said=(e.results[0][0].transcript||'').toLowerCase().replace(/[^a-z\s]/g,'').trim();
+    const target=SENTS[d.sentIdx].en.toLowerCase().replace(/[^a-z\s]/g,'').trim().split(/\s+/);
+    const saidWords=said.split(/\s+/).filter(Boolean);
+    let hit=0;target.forEach(w=>{if(saidWords.includes(w))hit++;});
+    const score=target.length?Math.round(hit/target.length*100):0;
+    setScore(score);
+    toast(score>=75?'🎉 读得很棒！':'再试一次，你会更好');
+  };
+  rec.onerror=()=>{$('#micBtn').classList.remove('rec');toast('没听清，再试一次');};
+  rec.onend=()=>$('#micBtn').classList.remove('rec');
+  rec.start();
+}
+
+function renderMe(){
+  const s={cases:d.done,words:wordsKnown(),sent:sentRead()};
+  $('#stCases').textContent=s.cases;$('#stWords').textContent=s.words;$('#stSent').textContent=s.sent;
+  const lv=Math.floor(s.cases/5)+1;
+  const lvNames=['见习侦探','少年侦探','侦探助手','名侦探','王牌侦探','传说侦探'];
+  $('#lvText').textContent='Lv.'+lv+' · '+(lvNames[Math.min(lv-1,lvNames.length-1)]||'传说侦探');
+  $('#badgeGrid').innerHTML=BADGES.map(b=>{
+    const need=b.need;
+    const got=(need.cases?d.done>=need.cases:true)&&(need.words?wordsKnown()>=need.words:true)&&(need.sent?sentRead()>=need.sent:true)&&(need.speak?d.speakDone>=need.speak:true)&&(need.streak?d.streak>=need.streak:true);
+    return '<div class="badge'+(got?'':' off')+'">'+(got?'<svg><use href="#i-badge"/></svg>':'<svg><use href="#i-lock"/></svg>')+'<span>'+b.n+'</span></div>';
+  }).join('');
+}
+
+/* ---------- 单词卡滑动 ---------- */
+(function(){
+  let sx=0;
+  const card=$('#fcard');
+  card.addEventListener('touchstart',e=>sx=e.touches[0].clientX,{passive:true});
+  card.addEventListener('touchend',e=>{
+    const dx=e.changedTouches[0].clientX-sx;
+    if(Math.abs(dx)>50){d.wordIdx=(d.wordIdx+(dx<0?1:WORDS.length-1))%WORDS.length;save();renderWords();}
+  },{passive:true});
+})();
+
+/* ---------- sw ---------- */
+if('serviceWorker' in navigator && location.protocol==='https:'){
+  navigator.serviceWorker.register('sw.js').catch(()=>{});
+}
+
+load();render();
+</script>
+</body>
+</html>
